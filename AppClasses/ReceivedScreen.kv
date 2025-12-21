@@ -1,0 +1,54 @@
+<ReceivedScreen@Screen>:
+    name: "received_resp"
+    MDBoxLayout:
+        id : received_resp_layout_box
+        orientation: 'vertical'
+        spacing: 5
+        padding: 5
+
+        ReusableTopBar:
+            id: top_bar
+        MDLabel:
+            id : received_resp_label
+            text: "Received Items"
+            halign: "center"
+            font_style: "H6"
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            adaptive_height : True
+            adaptive_width : True
+        MDBoxLayout:
+            id : received_resp_box
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: self.minimum_height
+            spacing: 5
+            padding: 5
+
+            Widget: #Spacer from Left , to position the below widgets centered
+
+            MDLabel:
+                id : received_resp_label
+                text: "Marriage Codes : "
+                halign: "center"
+                font_style: "Body1"
+                size_hint_x: None
+                width: self.texture_size[0] + dp(10)
+                adaptive_height : True
+                adaptive_width : True
+
+            MDDropDownItem:
+                id :  drop_codes
+                pos_hint: {"center_x": .5, "center_y": .5}
+                on_release: app.root.ids.received_resp_cls.open_drop_down(self)
+                text : "MR Codes"
+
+            Widget: #Spacer from Right
+
+        MDTextField:
+            id: search_field
+            hint_text: "Search here..."
+            on_text: app.root.ids.received_resp_cls.on_search_text(self.text)
+
+        ScrollView:
+            MDList:
+                id: data_list

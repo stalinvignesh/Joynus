@@ -1,0 +1,710 @@
+ScreenManager:
+    LoginScreen:
+    OTPScreen:
+    HomeScreen:
+    InvitesScreen:
+    AttendMarriageScreen:
+        id: attend_screen
+    QRScanScreen:
+        id : qr_screen
+    SentScreen:
+        id : sent_screen
+    ReceivedScreen:
+        id : received_resp_cls
+    ReceivedInvitesScreen:
+        id : received_invite
+    WeddingDetailScreen:
+        id : wedding_details
+    MarriageHomeScreen:
+        id : marriage_home
+    RequestToAttendScreen:
+        id : request_to_attend
+    ProfileScreen:
+        id : profile
+    VideoScreen:
+        id : video_screen
+    MapScreen:
+        id: map_screen
+    PhotoScreen:
+        id: photo_screen
+    PhotoViewerScreen
+        id : photo_viewer
+    GiftScreen
+        id : gift_screen
+    FeedBackScreen
+        id : feedback_screen
+
+
+<MapScreen>:
+    name : "map_screen"
+    MDBoxLayout:
+        orientation: "vertical"
+        MapView:
+            id: mapview
+            lat: 9.9252
+            lon: 78.1198
+            zoom: 10
+            double_tap_zoom : False
+
+<ReusableTopBar@MDTopAppBar>:
+    title: "Joynus"
+    elevation: 4
+    left_action_items: [["arrow-left", lambda x: app.go_back()],["home", lambda x : app.change_screen("home")]]
+    right_action_items: [["account", lambda x: app.change_screen("profile_screen") ],["dots-vertical", lambda x: app.on_menu_press(x)]]
+
+<CustomOneLineIconListItem@OneLineIconListItem>:
+    IconLeftWidget:
+        icon: root.icon
+        theme_text_color: "Custom"
+        text_color: 1, 0.6, 0, 1  # orange color
+
+<LoginScreen>:
+    name: "login"
+    MDBoxLayout:
+        orientation: "vertical"
+        padding: dp(30)
+        spacing: dp(20)
+        position_hint: {'center_x':0.5, 'center_y':0.5}
+        MDLabel:
+            text: "Welcome! Enter your Phone Number"
+            halign: "center"
+            font_style: "H5"
+        MDTextField:
+            id: phone_input
+            hint_text: "Phone Number"
+            write_tab: False
+            max_text_length: 10
+            input_filter: "int"
+        MDRaisedButton:
+            text: "Send OTP"
+            pos_hint: {"center_x": 0.5}
+            on_release:
+                app.send_otp(phone_input.text)
+
+
+
+<OTPScreen>:
+    name: "otp"
+    MDBoxLayout:
+        orientation: "vertical"
+        padding: dp(30)
+        spacing: dp(20)
+        position_hint: {'center_x':0.5, 'center_y':0.5}
+        MDLabel:
+            text: "Enter the 4-digit OTP"
+            halign: "center"
+            font_style: "H5"
+
+        BoxLayout:
+            spacing: dp(10)
+            #height: self.minimum_height
+            pos_hint: {'center_x': .8,'center_y': .4}
+            MDTextField:
+                id: otp1
+                hint_text: ""
+                password: True
+                max_text_length: 1
+                input_filter: "int"
+                size_hint_x: None
+                width: dp(50)
+                focus: True
+                on_text: otp2.focus = self.text != ''
+            MDTextField:
+                id: otp2
+                hint_text: ""
+                password: True
+                max_text_length: 1
+                input_filter: "int"
+                size_hint_x: None
+                width: dp(50)
+                on_text: otp3.focus = self.text != ''
+            MDTextField:
+                id: otp3
+                hint_text: ""
+                password: True
+                max_text_length: 1
+                input_filter: "int"
+                size_hint_x: None
+                width: dp(50)
+                on_text: otp4.focus = self.text != ''
+            MDTextField:
+                id: otp4
+                hint_text: ""
+                password: True
+                max_text_length: 1
+                input_filter: "int"
+                size_hint_x: None
+                width: dp(50)
+
+        MDRaisedButton:
+            text: "Verify OTP"
+            pos_hint: {"center_x": 0.5}
+            on_release:
+                app.verify_otp(otp1.text + otp2.text + otp3.text + otp4.text)
+
+<HomeScreen>:
+    name: "home"
+    MDFloatLayout:
+        orientation:"vertical"
+
+    MDScrollView:
+        effect_cls: "ScrollEffect"
+        scroll_type: ['bars', 'content']
+
+        MDBoxLayout:
+            size_hint_y : None
+            orientation: "vertical"
+            #adaptive_height: True
+            #adaptive_size:True
+            height:self.minimum_height
+
+
+            MDBoxLayout:
+                size_hint_x : None
+                orientation: "horizontal"
+                #adaptive_height: True
+                #adaptive_size:True
+                #width:self.minimum_width
+                pos_hint: {"right": 1, "top": 1}
+                #padding: 10
+                #spacing: 10
+
+                MDIconButton:
+                    icon: "account-circle"
+                    pos_hint: {"right": 0.90, "top": 0.98}
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    on_release: app.change_screen("profile_screen")
+
+                # Top-right Icon Button 2
+                MDIconButton:
+                    icon: "cog"
+                    pos_hint: {"right": 0.80, "top": 0.98}
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    on_release: app.open_settings()
+
+            MDBoxLayout:
+                #size_hint_y : None
+                orientation: "vertical"
+                adaptive_height: True
+                adaptive_size:True
+                size_hint : (1,1)
+                #height:self.minimum_height
+                padding: 10
+                spacing: 10
+
+            MDLabel:
+                id: phone_label
+                text: "Welcome Guest"  # Placeholder, will be updated
+                pos_hint: {"center_x": 0.5, "center_y": 0.8}
+                adaptive_height : True
+                halign: "left"
+                font_style: "Caption"
+                font_size : "30sp"
+                italic : True
+                markup: False
+                #color : [ 0.0078, 0.1882, 0.1255, 1 ]
+                #outline_color : [1, 1, 1, 1]
+                padding : 15
+
+
+            GridLayout:
+                rows:4
+                row_force_default : True
+                row_default_height : 180
+                col_force_default : False
+                size_hint_x: 0.8
+                pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                height:self.minimum_height
+                size_hint_y : None
+                spacing : [0,10]
+                MDRaisedButton:
+                    text: "Create Invite"
+                    #pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                    size_hint: 0.5, 0.08
+                    on_release:   app.change_screen("wedding_details")
+                    #md_bg_color: "#023020"
+                    text_color: "white"
+                    font_style : "Button"
+                    border_radius: [30, 30, 30, 30]
+
+
+                MDRaisedButton:
+                    text: "Respond to a Marriage"
+                    #pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                    size_hint: 0.5, 0.08
+                    on_release: app.change_screen("attend_marriage")
+                    #md_bg_color: "#023020"
+                    text_color: "white"
+                    font_style : "Button"
+                    border_radius: [30, 30, 30, 30]
+
+                #MDRaisedButton:  # Can use it if needed
+                #    text: "Watch a Marriage Virtually"
+                #    #pos_hint: {"center_x": 0.5, "center_y": 0.4}
+                #    size_hint: 0.5, 0.08
+                #    on_release: app.change_screen("video_screen")
+                #    md_bg_color: "#023020"
+                #    text_color: "white"
+                #    font_style : "Button"
+                #    border_radius: [30, 30, 30, 30]
+
+                MDRaisedButton:
+                    text: "Hop In a Marriage (Video,Gifts,Feedback and more)"
+                    #pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                    size_hint: 0.5, 0.08
+                    on_release: app.change_screen("marriage_home")
+                    #md_bg_color: "#023020"
+                    text_color: "white"
+                    font_style : "Button"
+                    border_radius: [30, 30, 30, 30]
+
+
+            MDRaisedButton:
+                text: "Logout"
+                pos_hint: {"center_x": 0.1}
+                md_bg_color: 1, 0.3, 0.3, 1  # Light red
+                on_release:
+                    app.logout()
+
+<InvitesScreen>:
+    name: "invites"
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDLabel:
+            text: "Invite"
+            halign: "center"
+
+
+<AttendMarriageScreen>:
+    name: "attend_marriage"
+    MDBoxLayout:
+        orientation: 'vertical'
+        #size_hint_y : None
+        #padding : 20
+        spacing: 20
+        #adaptive_height: True
+        height : self.minimum_height
+
+
+        ReusableTopBar:
+            id: top_bar
+
+        MDBoxLayout:
+            id : attend_layout
+            orientation: 'vertical'
+            MDLabel:
+                id : attend_label
+                text: "Search Marriage"
+                pos_hint: {"center_x": 0.5, "center_y": 0.9}
+                halign: "center"
+                font_style : "H4"
+
+            MDTextField:
+                id: marriage_code
+                hint_text: "Marriage Code Must"
+                write_tab: False
+                required: True
+
+            MDRaisedButton:
+                text: "Get Invite"
+                pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                size_hint: 0.5, 0.08
+                on_release:
+                    app.change_screen("received") if marriage_code.text != '' else None
+                #md_bg_color: "#2AB7CA"
+                text_color: "white"
+                border_radius: [30, 30, 30, 30]
+
+            MDLabel:
+                id : attend_label
+                text: "OR"
+                font_style : "H5"
+                #pos_hint: {"center_x": 0.9, "center_y": 0.9}
+                halign: "center"
+
+            MDRaisedButton:
+                text: "Scan Marriage QR Code"
+                pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                size_hint: 0.5, 0.08
+                on_release: app.change_screen("scan_qr")
+                #md_bg_color: "#2AB7CA"
+                text_color: "white"
+                border_radius: [30, 30, 30, 30]
+
+
+<SentScreen>:
+    name: "sent"
+    MDBoxLayout:
+        id : sent_box
+        orientation: 'vertical'
+        spacing: 5
+
+        ReusableTopBar:
+            id: top_bar
+        MDLabel:
+            id : sent_label
+            text: "Sent Items"
+            halign: "center"
+            font_style: "H6"
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            adaptive_height : True
+            adaptive_width : True
+        MDTextField:
+            id: search_field
+            hint_text: "Search here..."
+            on_text: app.root.ids.sent_screen.on_search_text(self.text)
+        ScrollView:
+            MDList:
+                id: data_list
+
+<QRScanScreen>:
+    name: "scan_qr"
+    MDBoxLayout:
+        id: camera_box
+        orientation: 'vertical'
+        spacing: dp(5)
+        padding: dp(5)
+
+        ReusableTopBar:
+            id: top_bar
+
+        MDLabel:
+            id: scan_result
+            text: "Scan QR code..."
+            halign: "center"
+            font_style: "H6"
+
+
+
+<ReceivedInvitesScreen>:
+    name: "received"
+
+    MDBoxLayout:
+        orientation: "vertical"
+        #size_hint_y: None
+
+	    ReusableTopBar:
+            id: top_bar
+
+        MDScrollView:
+            effect_cls: "ScrollEffect"
+            scroll_type: ['bars', 'content']
+            do_scroll_x: True
+            do_scroll_y: True
+
+            MDBoxLayout:
+                size_hint_y : None
+                size_hint_x: None
+                orientation: "vertical"
+                #adaptive_height: True
+                #adaptive_size:True
+                height:self.minimum_height
+                width: self.minimum_width
+                padding: 10
+                spacing: 10
+
+
+                MDLabel:
+                    id : received_screen_label
+                    text: "Marriage Details"
+                    halign: "center"
+                    pos_hint: {"center_x": 0.5,"center_y":0.8}
+                    adaptive_height: True
+                    spacing : 10
+                    padding : 10
+                    #pos:(20,250)
+                    font_style :"H4"
+
+                MDSpinner:
+                    id: spin
+                    size_hint: None, None
+                    size: dp(46), dp(46)
+                    pos_hint: {'center_x': .5, 'center_y': .5}
+                    color : [1, 0.4, 0, 1]
+                    active : True
+
+                MDBoxLayout:
+                    orientation: 'vertical'
+                    id : received_box
+                    #size_hint_y : None
+                    padding : 10
+                    spacing: 10
+                    adaptive_height: True
+                    adaptive_width: True
+                    #pos_hint: {"y": .1}
+                    #pos:(.9,.9)
+
+
+
+
+<WeddingDetailScreen>:
+    name: "wedding_details"
+
+    MDBoxLayout:
+        id : wedding_layout
+        orientation: "vertical"
+        #size_hint_y: None
+
+	    ReusableTopBar:
+            id: top_bar
+
+
+        MDScrollView:
+            effect_cls: "ScrollEffect"
+            scroll_type: ['bars', 'content']
+
+            MDBoxLayout:
+                orientation: "vertical"
+                size_hint_y : None
+                height:self.minimum_height
+                #adaptive_height: True
+                #adaptive_size:True
+                padding: 10
+                spacing: 5
+
+
+                MDBoxLayout:
+                    id : fields_box_layout
+                    orientation: "vertical"
+                    size_hint_y : None
+                    adaptive_height: True
+                    padding: 1
+                    spacing: 3
+
+                    MDTextField:
+                        id: groom_name
+                        hint_text: "Groom's Name"
+                        write_tab: False
+                    MDTextField:
+                        id: bride_name
+                        hint_text: "Bride's Name"
+                        write_tab: False
+                    MDTextField:
+                        id: wedding_datetime
+                        hint_text: "Select Wedding Date & Time"
+                        write_tab: False
+                        on_focus: if self.focus: app.open_datetime_picker(self)
+
+                    MDLabel:
+                        id: options_label
+                        text: "Food Served"
+                        halign: "left"
+                        font_style: "Body1"
+
+
+                    BoxLayout:
+                        orientation: "horizontal"
+                        spacing: 2
+                        size_hint_y: None
+                        adaptive_height: True
+                        #pos_hint: {"center_x": 0.5}
+                        padding:5
+
+                        MDSegmentedControl:
+                            on_active: app.root.ids.wedding_details.on_option_selected(self.current_active_segment)
+
+                            MDSegmentedControlItem:
+                                id : veg
+                                text: "Veg Only"
+
+
+                            MDSegmentedControlItem:
+                                id: nonveg
+                                text: "Non-Veg Only"
+
+
+                            MDSegmentedControlItem:
+                                id:both
+                                text: "Both Veg & Non-Veg"
+
+
+                    MDLabel:
+                        text: "Meal Served(Optional selection)"
+                        font_style: "Body1"
+                        halign: "left"
+
+                    BoxLayout:
+                        orientation: "horizontal"
+                        spacing: dp(5)
+                        size_hint_y: None
+                        #height: dp(50)
+                        adaptive_height: True
+                        #pos_hint: {"center_x": 0.5}
+
+                        MDCheckbox:
+                            id: breakfast
+                            on_active: app.root.ids.wedding_details.update_selection()
+                        MDLabel:
+                            text: "Break Fast"
+                            valign: "middle"
+
+                        MDCheckbox:
+                            id: lunch
+                            on_active: app.root.ids.wedding_details.update_selection()
+                        MDLabel:
+                            text: "Lunch"
+                            valign: "middle"
+
+                        MDCheckbox:
+                            id: dinner
+                            on_active: app.root.ids.wedding_details.update_selection()
+                        MDLabel:
+                            text: "Dinner"
+                            valign: "middle"
+
+                    MDBoxLayout:
+                        id : accommodation_provide
+                        orientation: "horizontal"
+                        adaptive_height: True
+                        padding: [0, 0, 0, 20]
+                        spacing: 35
+                        size_hint_y : None
+
+                        MDLabel :
+                            text : "Providing Accommodation/Rooms ?"
+                            adaptive_size : True
+                            size_hint_y : None
+                            pos_hint : {"center_y": 0.5}
+
+                        MDSwitch:
+                            icon_active : "check"
+                            size_hint_y : None
+                            pos_hint : {"center_y": 0.5}
+                            on_active: app.root.ids.wedding_details.on_accommodation_active(self,self.active)
+
+                    MDBoxLayout:
+                        orientation: "vertical"
+                        adaptive_height: True
+                        padding: [0, 0, 0, 20]
+                        spacing: 3
+
+                        MDTextField:
+                            id: engagement_datetime
+                            hint_text: "Select Engagement(Optional) Date & Time"
+                            write_tab: False
+                            on_focus: if self.focus: app.open_datetime_picker(self)
+
+
+                        MDFillRoundFlatButton:
+                            text: "+AddEvent"
+                            on_release: app.root.ids.wedding_details.show_events_form()
+
+                        MDTextField:
+                            id: wedding_venue
+                            write_tab: False
+                            hint_text: "Marriage Venue, Type Location Address or Click Map's Co-ords..."
+                            #on_focus : if self.focus: app.root.ids.wedding_details.open_map(self)
+
+                        MDFillRoundFlatButton:
+                            id : map_btn
+                            text: "OR Click me for MAP"
+                            preserve : False
+                            on_press: self.preserve = True
+                            on_release:
+                                app.change_screen("map_screen")
+                                root.manager.get_screen('map_screen').target_input = wedding_venue
+
+                        MDTextField:
+                            id: marriage_upi_id
+                            write_tab: False
+                            required: True
+                            hint_text: "Please enter UPI ID for this Marriage . This is important for payments."
+
+                        MDTextField:
+                            id: welcome_msg
+                            write_tab: False
+                            hint_text: "Welcome message(Optional)"
+
+                    RelativeLayout:
+                        orientation: "horizontal"
+                        spacing: 10
+                        #height: dp(50)
+                        adaptive_height: True
+                        pos_hint: {"center_x": 0.5}
+
+
+                        MDRaisedButton:
+                            id : qr_button
+                            text: "Generate QR Code"
+                            #size_hint_x: .5
+                            pos_hint: {"center_x": 0.3}
+                            on_release:
+                                app.confirm_wedding_qr(groom_name.text,bride_name.text,wedding_datetime.text,wedding_venue.text,engagement_datetime.text,marriage_upi_id.text,welcome_msg.text)
+                                map_btn.preserve = False
+
+                        MDRaisedButton:
+                            text: "Clear Dates"
+                            #size_hint_x: .5
+                            pos_hint: {"center_x": 0.5}
+                            on_release:
+                                app.clear_qr_dates()
+
+
+<RequestToAttendScreen>:
+    name : "request_to_attend"
+
+    MDBoxLayout:
+        orientation: "vertical"
+
+	    ReusableTopBar:
+            id: top_bar
+
+        MDScrollView:
+            effect_cls: "ScrollEffect"
+            scroll_type: ['bars', 'content']
+            #size_hint: (1, 1)
+
+            MDBoxLayout:
+                orientation: "vertical"
+                size_hint_y: None
+                #adaptive_height: True
+                #adaptive_size:True
+                height:self.minimum_height
+                #padding: dp(10)
+                #spacing: dp(5)
+
+
+                MDBoxLayout:
+                    orientation: 'vertical'
+                    id : response_box
+                    #size_hint_y : None
+                    padding : 20
+                    spacing: 20
+                    adaptive_height: True
+                    #adaptive_width: True
+                    #pos_hint: {"x":0.0 , "y": 0.7}
+                    #pos:(.9,.9)
+
+                    MDLabel:
+                        id : response_label
+                        text: "Attend Marriage"
+                        halign: "center"
+                        pos_hint: {"center_x": 0.5,"center_y":0.9}
+                        #pos:(20,250)
+                        font_style :"H4"
+
+
+<VideoScreen>:
+    name : "video_screen"
+
+    MDBoxLayout:
+        orientation: "vertical"
+        id : video_layout
+        spacing : 0
+        padding : 0
+        size_hint : (1,1)
+
+	    ReusableTopBar:
+            id: top_bar
+
+        MDBoxLayout:
+            orientation: "vertical"
+            id : video_container
+            #size_hint : (1,1)
+            size_hint_y: 0.7
+            spacing : 0
+            padding : 0
+
+

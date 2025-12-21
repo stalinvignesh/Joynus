@@ -1,0 +1,51 @@
+<PhotoScreen>:
+    name: "photo_screen"
+    MDBoxLayout:
+        orientation: 'vertical'
+        spacing: 5
+
+        ReusableTopBar:
+            id: top_bar
+
+        FloatLayout:
+
+            ScrollView:
+                size_hint: (1, 1)
+
+                #MDBoxLayout:
+                #    id : photo_layout_top
+                #    orientation: 'vertical'
+                #    size_hint_y : None
+                #    height:self.minimum_height
+
+                MDGridLayout:
+                    id: photo_layout
+                    cols: 2
+                    adaptive_height: True
+                    adaptive_width: True
+                    spacing: dp(10)
+                    padding: dp(5)
+                    size_hint_x: 1
+                    size_hint_y: None
+                    height:self.minimum_height
+                    pos_hint: {"center_x": 0.5}
+
+            MDFloatingActionButton:
+                icon: "upload-outline"
+                pos_hint: {"right": 0.95, "y": 0.05}
+                on_release: app.root.ids.photo_screen.open_file_manager()
+
+<PhotoViewerScreen>:
+    name: "photo_viewer"
+
+    Carousel:
+        id: carousel
+        direction: 'right'
+        size_hint: 1, 1
+        pos_hint: {"center_x": 0.5, "center_y": 0.5}
+        loop: False
+
+    MDRaisedButton:
+        text: "Back"
+        pos_hint: {"x": 0.02, "y": 0.02}
+        on_release: app.go_back()

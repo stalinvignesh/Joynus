@@ -1,0 +1,22 @@
+
+<FeedBackScreen>:
+    name : "feedback_screen"
+    MDBoxLayout:
+        id : feedback_outer_box
+        orientation : 'vertical'
+        spacing : 5
+
+        ReusableTopBar:
+            id: top_bar
+
+        MDScrollView:
+            id : scroll_chats
+            effect_cls : "DampedScrollEffect"
+            edge_damping : 0
+            overscroll : 0
+            scroll_type : ['bars','content']
+            MDBoxLayout:
+                id : feedback_layout
+                orientation: 'vertical'
+                size_hint_y : None
+                height:self.minimum_height

@@ -1,0 +1,87 @@
+<ProfileScreen@Screen>:
+    name: "profile_screen"
+
+    MDBoxLayout:
+        orientation: "vertical"
+
+        ReusableTopBar:
+            id: top_bar
+
+        ScrollView:
+            MDBoxLayout:
+                orientation: "vertical"
+                size_hint_y: None
+                height: self.minimum_height
+                adaptive_height: True
+                padding: dp(20)
+                spacing: dp(20)
+
+                MDCard:
+                    orientation: "vertical"
+                    size_hint_y: None
+                    height: self.minimum_height
+                    padding: dp(20)
+                    spacing: dp(10)
+                    elevation: 6
+                    radius: [20, 20, 20, 20]
+
+                    MDLabel:
+                        text: "Account Details"
+                        font_style: "H6"
+                        halign: "center"
+                        theme_text_color: "Primary"
+
+                    GridLayout:
+                        cols: 2
+                        spacing: dp(10)
+                        size_hint_y: None
+                        row_default_height: dp(70)
+                        row_force_default: True
+                        height: self.minimum_height
+
+                        MDLabel:
+                            text: "Username:"
+                            halign: "center"
+                            theme_text_color: "Secondary"
+
+                        MDTextField:
+                            id: name_field
+                            mode: "fill"
+                            fill_color: "lightgrey"
+
+                        MDLabel:
+                            text: "Email:"
+                            halign: "center"
+                            theme_text_color: "Secondary"
+
+                        MDTextField:
+                            id: email_field
+                            mode: "fill"
+                            fill_color: "lightgrey"
+
+                        MDLabel:
+                            text: "Phone:"
+                            halign: "center"
+                            theme_text_color: "Secondary"
+
+                        MDTextField:
+                            id: mobile_field
+                            mode: "fill"
+                            fill_color: "lightgrey"
+
+                        MDLabel:
+                            text: "Age:"
+                            halign: "center"
+                            theme_text_color: "Secondary"
+
+                        MDTextField:
+                            id: age_field
+                            mode: "fill"
+                            fill_color: "lightgrey"
+
+                    MDRaisedButton:
+                        id : update_btn
+                        text: "Update"
+                        pos_hint: {"center_x": 0.5}
+                        disabled : True
+                        on_release: app.root.ids.profile.update_profile( name_field.text, email_field.text, mobile_field.text,age_field.text)
