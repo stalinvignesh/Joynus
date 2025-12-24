@@ -34,7 +34,7 @@ class OTPScreen(Screen):
 class HomeScreen(Screen):
     def on_enter(self):
         self.app = MDApp.get_running_app()
-        if not "name" in self.app.user_details:
+        if not hasattr(self.app,"user_details"):
             self.show_user_form()
         else:
             self.ids.phone_label.text = (f"Welcome {self.app.user_details["name"]} ,"
@@ -47,11 +47,17 @@ MDBoxLayout:
     orientation: "vertical"
     spacing: "12dp"
     size_hint_y: None
-    height: "200dp"
+    adaptive_height : True
 
     MDTextField:
         id: name_input
         hint_text: "Full Name"
+        write_tab: False
+    MDTextField:
+        id: mobile_input
+        hint_text: "Mobile Number"
+        input_filter: "int"
+        max_text_length: 10
         write_tab: False
     MDTextField:
         id: age_input
@@ -63,6 +69,13 @@ MDBoxLayout:
         hint_text: "Email ID"
         write_tab: False
         helper_text_mode: "on_error"
+    MDTextField:
+        id: pin_input
+        hint_text: "Six Digit PIN To Login"
+        input_filter: "int"
+        password: True
+        max_text_length: 6
+        write_tab: False
 ''')
 
         self.form_dialog = MDDialog(
@@ -80,8 +93,12 @@ MDBoxLayout:
         name = self.form_content.ids.name_input.text.strip()
         age = self.form_content.ids.age_input.text.strip()
         email = self.form_content.ids.email_input.text.strip()
+        pin = self.form_content.ids.pin_input.text.strip()
+        from passlib.context import CryptContext
+        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        pin_hash = pwd_context.hash(pin)
 
-        if not name or not age or not email:
+        if not name or not age or not email or not pin:
             self.show_dialog("Incomplete Form", "Please fill in all fields.")
             return
 
@@ -99,7 +116,9 @@ MDBoxLayout:
             "age": age,
             "created_date": today_date,
             "last_login" : today_date,
-            "email": email
+            "email": email,
+            "pin": pin_hash,
+            "is_pin_permanent": True,
         }
         print(self.user_data)
         ins = self.app.api.post("/insert/user_data",json=self.user_data)
@@ -286,6 +305,18 @@ MDBoxLayout:
             "response_message" : self.response_input.text
 
         }
+        marriage_response_upd = {
+            "user_id" : self.user_id,
+            "response_type" : "in-person",
+            "marriage_code" : self.marriage_code,
+            "user_name" : self.user_name,
+            "inviter_relation" : self.selected_relation,
+            "food_count" : food_count,
+            "engagement_availability" : self.engagement_state,
+            "accommodation_needed" : accommodation_text,
+            "response_message" : self.response_input.text
+
+        }
         if self.inserted:
             self.app.show_dialog("Already Inserted", "Hope you have already joined with us with your inputs")
             self.app.change_screen('attend_marriage')
@@ -305,8 +336,9 @@ MDBoxLayout:
                        duration=3
                        ).open()
             elif self.is_update :
-                payload = { "query" : {"user_id" :self.user_id ,"marriage_code": self.marriage_code } ,
-                            "data" : marriage_response }
+                payload = { "query" : {"user_id" :self.user_id ,"marriage_code": self.marriage_code ,
+                                       "response_id" : response_id} ,
+                            "data" : marriage_response_upd }
                 self.response_update = self.app.api.put("/update/marriage_responses",json=payload)
                 self.inserted = True
                 MDSnackbar(MDIcon(icon='hands-pray',adaptive_height=True,adaptive_width=True,
@@ -997,7 +1029,7 @@ class WeddingApp(MDApp):
         print(f"[DEBUG] OTP Sent to {phone_number}: {self.otp_code}")
         self.root.current = "otp"
         self.root.get_screen('otp').ids.otp1.focus = True
-        self.otp_code = "1234"
+        #self.otp_code = "1234"
 
     def verify_otp(self, input_otp):
         if self.api.login(self.phone_number,input_otp):
@@ -1013,6 +1045,95 @@ class WeddingApp(MDApp):
         else:
             self.show_dialog("Invalid OTP","OTP Not Valid or Unable to login")
             return
+
+    def verify_pin(self, input_pin):
+        if self.api.login(self.phone_number,input_pin):
+            self.user_details = self.api.get(f"/user_data/by_field/mobile/{self.phone_number}")
+            if self.user_details["is_pin_permanent"]:
+                payload = {"query": {"mobile": self.phone_number}, "data": {"last_login": str(datetime.now())}}
+                print(f"user details {self.user_details}")
+                update_last_login = self.api.put("/update/user_data", json=payload)
+                self.store.put("user", phone=self.phone_number,token=self.api.access_token)
+                self.change_screen("home")
+            else:
+                self._reset()
+        else:
+            self.show_dialog("Invalid PIN","PIN Not Valid or Unable to login")
+            return
+
+    def reset_pin(self):
+        print(f"reset PIN for {self.phone_number}")
+        self.temp_pin = str(random.randint(100000, 999999))
+        print(self.temp_pin)
+        try:
+            if self.api.reset(self.phone_number, self.temp_pin):
+                payload = { "phone_number" : self.phone_number, "otp" : self.temp_pin }
+                self.reset_response = self.api.post("/reset_pin",json=payload)
+                receiver_email = self.reset_response.get("email")
+                if receiver_email == "Error":
+                    self.show_dialog("Email Not Found", "No email associated with this user.")
+                    return
+                yag = yagmail.SMTP(user="joynus.india@gmail.com", password="qehu gngt koxg sttk")
+                yag.send(
+                to=receiver_email,
+                subject="Your Temporary PIN for Joynus",
+                contents=f"Please note down your temporary PIN : {self.temp_pin}",
+                )
+                self.show_dialog("Email Sent",f"Temporary PIN Sent to your Email {receiver_email} .Use that one time")
+            else:
+                self.show_dialog("Reset Error", "Reset Failed")
+        except Exception as e:
+            self.show_dialog("Email Error", f"Could not send email.\n{str(e)}")
+            return
+
+
+
+    def _reset(self):
+        self.reset_form = Builder.load_string('''
+MDBoxLayout:
+    orientation: "vertical"
+    spacing: "10dp"
+    padding: "15dp"
+    size_hint_y: None
+    adaptive_height: True
+
+    MDTextField:
+        id: reset_phone_number
+        hint_text: "Your Number"
+        write_tab: False
+        text : "{}"
+    MDTextField:
+        id: first_pin
+        hint_text: "Enter New PIN"
+        write_tab: False
+    MDTextField:
+        id: second_pin
+        hint_text: "Enter New PIN again"
+        write_tab: False
+'''.format(self.phone_number))
+        self.reset_dialog = MDDialog(title="Reset PIN",
+            type="custom",
+            content_cls=self.reset_form,
+            buttons=[
+                MDRaisedButton(text="CANCEL", on_release=lambda x: self.reset_dialog.dismiss()),
+                MDRaisedButton(text="RESET",
+                               on_release=lambda x: _reset_it())
+            ],
+        )
+        self.reset_dialog.open()
+
+        def _reset_it():
+            from passlib.context import CryptContext
+            pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+            if self.reset_form.ids.first_pin.text == self.reset_form.ids.second_pin.text :
+                pin_hash = pwd_context.hash(self.reset_form.ids.second_pin.text)
+                payload = { "query" : {"mobile" : self.phone_number} ,"data" : { "pin" : pin_hash ,"is_pin_permanent" : True } }
+                user_upd = self.api.put("/update/user_data",json=payload)
+                self.show_dialog("Success","PIN Reset Successfully Done")
+                self.reset_dialog.dismiss()
+            else:
+                self.show_dialog("Error in Reset" ,"New PINs does not match")
+                return
 
     def show_dialog(self, title, text):
         dialog = MDDialog(title=title, text=text, size_hint=(0.8, 0.3),
@@ -1070,7 +1191,7 @@ class WeddingApp(MDApp):
         is_accommodation =  self.marriage_data["accommodation_provided"]
 
         details = (f"Groom: {groom}\nBride: {bride}\nDate: {date}\nEngagement(If): "
-                   f"{engagement_date}\nVenue: {venue}\n{welcome_msg}")
+                   f"{engagement_date}\nVenue: {venue}\n{welcome_msg} Marriage Code : {new_marriage_code}")
         #details = "https://www.google.com"
         qr_img = qrcode.make(details)
 
@@ -1104,7 +1225,7 @@ class WeddingApp(MDApp):
             if self.invites_cursor:
                 for invite_date in self.invites_cursor:
                     self.marriage_get_date = invite_date.get('marriage_date')
-                    print("Got Date is "+str(self.marriage_get_date))
+                    #print("Got Date is "+str(self.marriage_get_date))
 
                     if date == self.marriage_get_date:
                         self.show_dialog("Existing","You already have invited for the date "+self.marriage_get_date+"!!!")
@@ -1187,7 +1308,7 @@ FitImage:
                     self.show_dialog("Email Not Found", "No email associated with this user.")
                     return
 
-                yag = yagmail.SMTP(user="yourgmail@gmail.com", password="your-app-password")
+                yag = yagmail.SMTP(user="joynus.india@gmail.com", password="MyJoynus@3")
                 yag.send(
                     to=receiver_email,
                     subject="Your Wedding QR Invitation",

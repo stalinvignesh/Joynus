@@ -76,10 +76,15 @@ ScreenManager:
             max_text_length: 10
             input_filter: "int"
         MDRaisedButton:
-            text: "Send OTP"
+            text: "Enter"
             pos_hint: {"center_x": 0.5}
             on_release:
                 app.send_otp(phone_input.text)
+        MDRaisedButton:
+            text: "New User"
+            pos_hint: {"center_x": 0.5}
+            on_release:
+                app.change_screen("home")
 
 
 
@@ -91,7 +96,7 @@ ScreenManager:
         spacing: dp(20)
         position_hint: {'center_x':0.5, 'center_y':0.5}
         MDLabel:
-            text: "Enter the 4-digit OTP"
+            text: "Enter the 6-digit PIN"
             halign: "center"
             font_style: "H5"
 
@@ -135,12 +140,36 @@ ScreenManager:
                 input_filter: "int"
                 size_hint_x: None
                 width: dp(50)
+                on_text: otp5.focus = self.text != ''
+            MDTextField:
+                id: otp5
+                hint_text: ""
+                password: True
+                max_text_length: 1
+                input_filter: "int"
+                size_hint_x: None
+                width: dp(50)
+                on_text: otp6.focus = self.text != ''
+            MDTextField:
+                id: otp6
+                hint_text: ""
+                password: True
+                max_text_length: 1
+                input_filter: "int"
+                size_hint_x: None
+                width: dp(50)
 
         MDRaisedButton:
-            text: "Verify OTP"
+            text: "Verify PIN"
             pos_hint: {"center_x": 0.5}
             on_release:
-                app.verify_otp(otp1.text + otp2.text + otp3.text + otp4.text)
+                app.verify_pin(otp1.text + otp2.text + otp3.text + otp4.text + otp5.text + otp6.text)
+
+        MDRaisedButton:
+            text: "Reset PIN"
+            pos_hint: {"center_x": 0.5}
+            on_release:
+                app.reset_pin()
 
 <HomeScreen>:
     name: "home"

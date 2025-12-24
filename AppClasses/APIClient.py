@@ -6,10 +6,11 @@ from kivymd.app import MDApp
 
 
 class APIClient:
-    def __init__(self, access_token=None, refresh_token=None):
+    def __init__(self, access_token=None, refresh_token=None , reset_token=None):
         self.base_url = "http://127.0.0.1:8000"
         self.access_token = access_token
         self.refresh_token = refresh_token
+        self.reset_token = reset_token
         self.app = MDApp.get_running_app()
 
         # Enable GET response caching (30 seconds default)
@@ -17,7 +18,7 @@ class APIClient:
 
     def _headers(self):
         return {
-            "Authorization": f"Bearer {self.access_token}",
+            "Authorization": f"Bearer {self.access_token}"
         }
 
     def _url(self, endpoint):
@@ -77,10 +78,10 @@ class APIClient:
     def delete(self, endpoint, **kwargs):
         return self._request("DELETE", endpoint, **kwargs)
 
-    def login(self, phone_number, otp):
+    def login(self, phone_number, pin):
         resp = requests.post(self._url("/token"), json={
             "phone_number": phone_number,
-            "otp": otp
+            "otp": pin
         })
 
         if resp.status_code == 200:
@@ -101,4 +102,19 @@ class APIClient:
             return True
         else:
             print("[Auth] Error in logging out")
+            return False
+
+    def reset(self, phone_number, pin):
+        resp = requests.post(self._url("/reset"), json={
+            "phone_number": phone_number,
+            "otp": pin
+        })
+
+        if resp.status_code == 200:
+            tokens = resp.json()
+            self.access_token = tokens.get("reset_token")
+            print("[Auth] Reset successful.")
+            return True
+        else:
+            print("[Auth] Reset failed.")
             return False
