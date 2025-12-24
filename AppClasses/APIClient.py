@@ -118,3 +118,18 @@ class APIClient:
         else:
             print("[Auth] Reset failed.")
             return False
+
+    def register(self, phone_number, pin):
+        resp = requests.post(self._url("/register"), json={
+            "phone_number": phone_number,
+            "otp": pin
+        })
+
+        if resp.status_code == 200:
+            tokens = resp.json()
+            self.access_token = tokens.get("register_token")
+            print("[Auth] Register successful.")
+            return True
+        else:
+            print("[Auth] Register failed.")
+            return False

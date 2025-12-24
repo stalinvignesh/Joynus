@@ -3,6 +3,7 @@ from kivy.core.text import LabelBase
 from Libraries.imports import *
 import requests_cache
 #To avoid circular import , import app related classes locally
+from AppClasses.RegisterScreen import RegisterScreen
 from AppClasses.Profile import ProfileScreen
 from AppClasses.SentScreen import SentScreen
 from AppClasses.VideoScreen import VideoScreen
@@ -31,6 +32,7 @@ class OTPScreen(Screen):
     pass
 
 
+
 class HomeScreen(Screen):
     def on_enter(self):
         self.app = MDApp.get_running_app()
@@ -41,102 +43,7 @@ class HomeScreen(Screen):
                                          f"to the world of celebration!!!")
             print("User "+self.app.user_details["name"])
 
-    def show_user_form(self):
-        self.form_content = Builder.load_string('''
-MDBoxLayout:
-    orientation: "vertical"
-    spacing: "12dp"
-    size_hint_y: None
-    adaptive_height : True
 
-    MDTextField:
-        id: name_input
-        hint_text: "Full Name"
-        write_tab: False
-    MDTextField:
-        id: mobile_input
-        hint_text: "Mobile Number"
-        input_filter: "int"
-        max_text_length: 10
-        write_tab: False
-    MDTextField:
-        id: age_input
-        hint_text: "Age"
-        input_filter: "int"
-        write_tab: False
-    MDTextField:
-        id: email_input
-        hint_text: "Email ID"
-        write_tab: False
-        helper_text_mode: "on_error"
-    MDTextField:
-        id: pin_input
-        hint_text: "Six Digit PIN To Login"
-        input_filter: "int"
-        password: True
-        max_text_length: 6
-        write_tab: False
-''')
-
-        self.form_dialog = MDDialog(
-            title="Your Details Please",
-            type="custom",
-            content_cls=self.form_content,
-            buttons=[
-                MDRaisedButton(text="CANCEL", on_release=lambda x: self.form_dialog.dismiss()),
-                MDRaisedButton(text="SUBMIT", on_release=lambda x: self.save_user_details())
-            ],
-        )
-        self.form_dialog.open()
-
-    def save_user_details(self):
-        name = self.form_content.ids.name_input.text.strip()
-        age = self.form_content.ids.age_input.text.strip()
-        email = self.form_content.ids.email_input.text.strip()
-        pin = self.form_content.ids.pin_input.text.strip()
-        from passlib.context import CryptContext
-        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-        pin_hash = pwd_context.hash(pin)
-
-        if not name or not age or not email or not pin:
-            self.show_dialog("Incomplete Form", "Please fill in all fields.")
-            return
-
-        today_date = str(datetime.now())
-        pipeline = [
-            {"$group": {"_id": None, "max_uid": {"$max": "$user_id"}}}
-        ]
-        response = self.app.api.post("/aggregate/user_data", json=pipeline)
-        max_uid = response[0]["max_uid"] if response else 0
-        max_uid += 1
-        self.user_data = {
-            "user_id": max_uid,
-            "mobile": self.app.phone_number,
-            "name": name,
-            "age": age,
-            "created_date": today_date,
-            "last_login" : today_date,
-            "email": email,
-            "pin": pin_hash,
-            "is_pin_permanent": True,
-        }
-        print(self.user_data)
-        ins = self.app.api.post("/insert/user_data",json=self.user_data)
-        #self.app.store.put(self.app.phone_number, **self.user_data)
-        if "id" in ins:
-            self.app.show_dialog("Welcome","Thank you for registering "+name)
-            self.form_dialog.dismiss()
-            with requests_cache.disabled():
-                self.app.user_details = self.app.api.get(f"/user_data/by_field/mobile/{self.app.phone_number}")
-            if "id" in self.app.user_details:
-                payload = {"query": {"mobile": self.app.phone_number}, "data": {"last_login": str(datetime.now())}}
-                print(f"user details {self.app.user_details}")
-                update_last_login = self.app.api.put("/update/user_data", json=payload)
-                self.app.store.put("user", phone=self.app.phone_number,token=self.app.api.access_token)
-                self.ids.phone_label.text = (f"Welcome {self.app.user_details["name"]} ,"
-                                             f"to the world of celebration!!!")
-        else:
-            self.app.show_dialog("Error","Error in Registering")
 
 class AttendMarriageScreen(Screen):
     def on_enter(self):
@@ -1406,8 +1313,7 @@ FitImage:
         print(f"Selected: {action}  {self.menu.items}")
         self.menu.dismiss()
         self.list_selected = action
-        if action == "food_count" :
-            self.show_food_count()
+        if action == "food_count" :          self.show_food_count()
         elif action == "update_live":
             self.show_update_url()
         elif action == "sent_invites":

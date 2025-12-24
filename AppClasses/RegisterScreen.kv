@@ -1,0 +1,98 @@
+<RegisterScreen@Screen>:
+    name: "register_screen"
+
+    MDBoxLayout:
+        orientation: "vertical"
+
+        ReusableTopBar:
+            id: top_bar
+
+        ScrollView:
+            MDBoxLayout:
+                orientation: "vertical"
+                size_hint_y: None
+                height: self.minimum_height
+                adaptive_height: True
+                padding: dp(20)
+                spacing: dp(20)
+
+                MDCard:
+                    orientation: "vertical"
+                    size_hint_y: None
+                    height: self.minimum_height
+                    padding: dp(20)
+                    spacing: dp(10)
+                    elevation: 6
+                    radius: [20, 20, 20, 20]
+
+                    MDLabel:
+                        text: "New Account"
+                        font_style: "H6"
+                        halign: "center"
+                        theme_text_color: "Primary"
+
+                    GridLayout:
+                        cols: 2
+                        spacing: dp(10)
+                        size_hint_y: None
+                        row_default_height: dp(70)
+                        row_force_default: True
+                        height: self.minimum_height
+
+                        MDLabel:
+                            text: "Username:"
+                            halign: "center"
+                            theme_text_color: "Secondary"
+
+                        MDTextField:
+                            id: name_field
+                            mode: "fill"
+                            fill_color: "lightgrey"
+
+                        MDLabel:
+                            text: "Email:"
+                            halign: "center"
+                            theme_text_color: "Secondary"
+
+                        MDTextField:
+                            id: email_field
+                            mode: "fill"
+                            fill_color: "lightgrey"
+
+                        MDLabel:
+                            text: "Phone:"
+                            halign: "center"
+                            theme_text_color: "Secondary"
+
+                        MDTextField:
+                            id: mobile_field
+                            mode: "fill"
+                            fill_color: "lightgrey"
+
+                        MDLabel:
+                            text: "Age:"
+                            halign: "center"
+                            theme_text_color: "Secondary"
+
+                        MDTextField:
+                            id: age_field
+                            mode: "fill"
+                            fill_color: "lightgrey"
+                        MDLabel:
+                            text: "Set New 6 digit PIN:"
+                            halign: "center"
+                            theme_text_color: "Secondary"
+
+                        MDTextField:
+                            id: pin_field
+                            mode: "fill"
+                            fill_color: "lightgrey"
+                            max_text_length : 6
+                            password : True
+                            input_filter: "int"
+
+                    MDRaisedButton:
+                        id : register_btn
+                        text: "Register"
+                        pos_hint: {"center_x": 0.5}
+                        on_release: app.root.ids.register.save_user_details(name_field.text, email_field.text, mobile_field.text,age_field.text,pin_field.text)

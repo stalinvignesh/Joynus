@@ -1,4 +1,6 @@
 ScreenManager:
+    RegisterScreen:
+        id : register
     LoginScreen:
     OTPScreen:
     HomeScreen:
@@ -84,7 +86,7 @@ ScreenManager:
             text: "New User"
             pos_hint: {"center_x": 0.5}
             on_release:
-                app.change_screen("home")
+                app.change_screen("register_screen")
 
 
 
